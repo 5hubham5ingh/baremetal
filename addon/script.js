@@ -1,4 +1,3 @@
-console.log("script2.js");
 let backgroundScriptPort;
 
 function NativeFunctions() {
@@ -13,19 +12,16 @@ function NativeFunctions() {
             }
 
             const message = {
-              data: {
-                functionName,
-                arguments: Object.values(arguments),
-              },
+              functionName,
+              arguments: Object.values(arguments),
             };
             backgroundScriptPort.postMessage(message);
 
             backgroundScriptPort.onMessage.addListener(async (message) => {
-              console.log("Message from background script:", message);
               if (message.status === 0) {
                 resolve(message.data);
               } else {
-                reject(message.error);
+                reject(message.data);
               }
             });
           });
@@ -33,10 +29,8 @@ function NativeFunctions() {
     );
 }
 
-console.log("getting native functions");
 const [getTheme, getWallpaper] = NativeFunctions("getTheme", "getWallpaper");
 
-console.log("calling getTheme");
 getTheme("theme")
   .then((theme) => {
     console.log(theme);

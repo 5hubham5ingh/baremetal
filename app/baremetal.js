@@ -15,7 +15,7 @@ generateAppManifest();
 while (true) {
   try {
     const message = getMessage();
-    sendMessage("Hello from baremetal.js");
+    await handleMessage(message);
   } catch (error) {
     sendError(error);
   } finally {
@@ -23,6 +23,14 @@ while (true) {
 }
 
 /**************************** Helpers *****************************/
+
+async function handleMessage(message) {
+  const extension = await import(
+    getenv("HOME").concat("/.config/baremetal/main.js")
+  );
+  const result = await extension[message.functionName]();
+  sendMessage("Message from native app: " + JSON.stringify(result));
+}
 
 // Read a message from stdin using the length-prefixed header
 function getMessage() {
