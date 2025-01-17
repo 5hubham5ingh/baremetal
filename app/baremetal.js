@@ -1,13 +1,5 @@
-import {
-  exit,
-  getenv,
-  in as stdin,
-  loadFile,
-  open,
-  out as stdout,
-  err as stderror,
-} from "std";
-import { isatty, stat, mkdir, exec } from "os";
+import { exit, getenv, in as stdin, open, out as stdout } from "std";
+import { isatty, exec } from "os";
 
 generateAppManifest();
 
@@ -18,16 +10,19 @@ while (true) {
     await handleMessage(message);
   } catch (error) {
     sendError(error);
-  } finally {
   }
 }
 
 /**************************** Helpers *****************************/
 
 async function handleMessage(message) {
-  const extension = await import(
-    getenv("HOME").concat("/.config/baremetal/main.js")
-  );
+  let extension;
+  const extensionPath = getenv("HOME").concat("/.config/baremetal/main.js");
+  try {
+    extension = await import(extensionPath);
+  } catch {
+    throw Error("Failed to import extension at " + extensionPath);
+  }
   const result = await extension[message.functionName]();
   sendMessage("Message from native app: " + JSON.stringify(result));
 }
