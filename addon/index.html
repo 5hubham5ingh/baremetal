@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom New Tab</title>
+    <script src="indexDB.js" defer></script>
+    <script src="fileUploadModal.js" defer></script>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="fileUploadModal.css" />
+  </head>
+  <body>
+    <!-- Hidden file input -->
+    <input
+      type="file"
+      id="fileUpload"
+      multiple
+      accept=".html,.js,.css"
+      style="display: none"
+    />
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="uploadModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Uploading custom HTML, CSS and JS?</h2>
+        </div>
+        <div class="upload-area" id="dropZone">
+          <svg
+            class="upload-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            />
+          </svg>
+          <p class="upload-text">Drag and drop your files here</p>
+          <p class="upload-subtext">or click to browse</p>
+          <div class="file-types">
+            <span class="file-type">.html</span>
+            <span class="file-type">.css</span>
+            <span class="file-type">.js</span>
+          </div>
+        </div>
+        <div class="selected-files" id="fileList" style="display: none">
+          <div class="file-list">
+            <!-- File items will be added here dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
