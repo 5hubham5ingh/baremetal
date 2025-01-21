@@ -4,12 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Custom New Tab</title>
-    <script src="indexDB.js" defer></script>
-    <script src="fileUploadModal.js" defer></script>
+    <script src="./helpers/db.js" defer></script>
+    <script src="./helpers/sharedState.js" defer></script>
+    <script src="./helpers/fileUploadModal.js" defer></script>
+    <script src="./helpers/nativeFunctionApi.js" defer></script>
     <script src="script.js" defer></script>
     <link rel="stylesheet" href="fileUploadModal.css" />
   </head>
-  <body>
+  <body style="height: 100%; margin: 0; padding: 0">
     <!-- Hidden file input -->
     <input
       type="file"
@@ -46,11 +48,6 @@
             <span class="file-type">.html</span>
             <span class="file-type">.css</span>
             <span class="file-type">.js</span>
-          </div>
-        </div>
-        <div class="selected-files" id="fileList" style="display: none">
-          <div class="file-list">
-            <!-- File items will be added here dynamically -->
           </div>
         </div>
       </div>

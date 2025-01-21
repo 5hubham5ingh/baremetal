@@ -1,30 +1,45 @@
-import { exit, getenv, in as stdin, open, out as stdout } from "std";
-import { isatty, exec } from "os";
+import {
+  err as stderr,
+  exit,
+  getenv,
+  in as stdin,
+  open,
+  out as stdout,
+} from "std";
+import { exec, isatty } from "os";
+import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
 
-generateAppManifest();
+globalThis.execAsync = execAsync;
 
-/* Main loop */
-while (true) {
-  try {
+let extensionPath;
+try {
+  generateAppManifest();
+  extensionPath = getenv("HOME").concat("/.config/baremetal/main.js");
+
+  /* Main loop */
+  while (true) {
     const message = getMessage();
     await handleMessage(message);
-  } catch (error) {
-    sendError(error);
   }
+} catch (error) {
+  stderr.puts(`${error.constructor.name}: ${error.message}\n${error.stack}`);
 }
 
 /**************************** Helpers *****************************/
 
 async function handleMessage(message) {
-  let extension;
-  const extensionPath = getenv("HOME").concat("/.config/baremetal/main.js");
   try {
-    extension = await import(extensionPath);
-  } catch {
-    throw Error("Failed to import extension at " + extensionPath);
+    let extension;
+    try {
+      extension = await import(extensionPath);
+    } catch {
+      throw Error("Failed to import extension at " + extensionPath);
+    }
+    const result = await extension[message.functionName](...message.arguments);
+    sendMessage(result, message.id);
+  } catch (error) {
+    sendError(error, message.id);
   }
-  const result = await extension[message.functionName]();
-  sendMessage("Message from native app: " + JSON.stringify(result));
 }
 
 // Read a message from stdin using the length-prefixed header
@@ -48,7 +63,7 @@ function sendMessageChunk(messageString) {
   stdout.flush();
 }
 
-function sendMessage(result) {
+function sendMessage(result, id) {
   const message = JSON.stringify(result);
 
   const chunkSize = 1000000;
@@ -58,19 +73,23 @@ function sendMessage(result) {
     const chunks = message.match(new RegExp(`.{1,${chunkSize}}`, "g"));
 
     // Send each chunk with appropriate status
-    chunks.forEach((chunk, index) => {
+    chunks.forEach((dataChunk, index) => {
       const status = index === chunks.length - 1 ? 0 : 0.5;
-      sendMessageChunk({ status, data: chunk });
+      const chunk = { status, data: dataChunk };
+      if (status === 0) chunk.id = id;
+      sendMessageChunk(chunk);
     });
   } else {
     // Send the full message if it's within the size limit
-    sendMessageChunk({ status: 0, data: message });
+    const chunk = { status: 0, data: message, id };
+    sendMessageChunk(chunk);
   }
 }
 
-function sendError(error) {
-  sendMessage({
+function sendError(error, id) {
+  sendMessageChunk({
     status: 1,
+    id,
     data: `${error.constructor.name}: ${error.message}\n${error.stack}`,
   });
 }
@@ -94,7 +113,7 @@ function generateAppManifest() {
       print(
         '  Failed to open native app manifest "' +
           nativeAppManifestFilePath +
-          `".\n  Run 'sudo touch "${nativeAppManifestFilePath}" && baremetal' to generate the app manifest.`
+          `".\n  Run 'sudo baremetal' to generate the app manifest.`,
       );
       exit(1);
     }

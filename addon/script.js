@@ -1,68 +1,77 @@
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+    const files = await retrieveDataFromIndexedDB("files");
+    if (files) {
+      processFiles(files);
+    } else { // load docs
+      const iframe = document.createElement("iframe");
+      iframe.src = "https://5hubham5ingh.github.io/baremetal";
+      iframe.frameBorder = "0";
+      iframe.style.height = "100vh";
+      iframe.style.width = "100%";
+      document.body.appendChild(iframe);
+    }
+  },
+);
+
+// Listen for Ctrl+Enter to upload custom html, css, and js.
+document.addEventListener("keydown", function (event) {
+  if (event.ctrlKey && event.key === "Enter") {
+    showModal();
+  }
+});
+
+// Listen for custom html, css and js upload
+document.getElementById("fileUpload").addEventListener(
+  "change",
+  handleFileUpload,
+);
+
+/*----------------- NativeFunctions helpers --------------------*/
 let backgroundScriptPort;
+const backgroundMessageHandlers = new Map();
 
-function NativeFunctions() {
-  if (!(this instanceof NativeFunctions))
-    // function was called without new
-    return Object.values(arguments).map(
-      (functionName) =>
-        function () {
-          return new Promise((resolve, reject) => {
-            if (!backgroundScriptPort) {
-              backgroundScriptPort = browser.runtime.connect();
-            }
+function handleMessage(message, resolve, reject) {
+  const { status, data } = message;
+  status === 0 ? resolve(JSON.parse(data)) : reject(data);
+}
 
-            const message = {
-              functionName,
-              arguments: Object.values(arguments),
-            };
-            backgroundScriptPort.postMessage(message);
+function messageHandler(message) {
+  const handler = backgroundMessageHandlers.get(message.id);
+  if (!handler) console.error("No handler for: ", message.id);
+  else handler(message);
+}
 
-            backgroundScriptPort.onMessage.addListener(async (message) => {
-              if (message.status === 0) {
-                resolve(message.data);
-              } else {
-                reject(message.data);
-              }
-            });
-          });
-        }
-    );
-  else {
-    const genId = () => crypto.getRandomValues(new Uint8Array(4)).join("");
-    return Object.values(arguments).map((functionName) => {
-      return function () {
-        return new Promise((resolve, reject) => {
-          const id = genId();
-          const message = {
-            functionName,
-            arguments: Object.values(arguments),
-            id,
-          };
-          const listener = (message) => {
-            if (message.id === id) {
-              if (message.status === 0) {
-                resolve(message.data);
-              } else {
-                reject(message.data);
-              }
-              browser.runtime.onMessage.removeListener(listener);
-            }
-          };
-          browser.runtime.onMessage.addListener(listener);
-          browser.runtime.sendMessage(message);
-        });
-      };
-    });
+function setupConnection() {
+  if (!backgroundScriptPort) {
+    backgroundScriptPort = browser.runtime.connect();
+    backgroundScriptPort.onMessage.addListener(messageHandler);
   }
 }
 
-const [getTheme, getWallpaper] = new NativeFunctions(
-  "getTheme",
-  "getWallpaper"
-);
+function createFunctionWrapper(functionName, id, usePort = true) {
+  return function () {
+    return new Promise((resolve, reject) => {
+      const message = {
+        functionName,
+        arguments: Array.from(arguments),
+        id,
+      };
 
-getTheme("theme")
-  .then((theme) => {
-    console.log(theme);
-  })
-  .catch((error) => console.error(error));
+      const listener = (message) => handleMessage(message, resolve, reject);
+      backgroundMessageHandlers.set(id, listener);
+
+      if (usePort) {
+        setupConnection();
+        backgroundScriptPort.postMessage(message);
+      } else {
+        if (!browser.runtime.onMessage.hasListener(messageHandler)) {
+          browser.runtime.onMessage.addListener(messageHandler);
+        }
+        browser.runtime.sendMessage(message);
+      }
+    });
+  };
+}
+/*---------------------------------------------------------------*/
