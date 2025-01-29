@@ -139,13 +139,13 @@ We are going to implement a simple new tab page extension with the following fea
 - The new tab page will display a digital clock at the center of the page with a background wallpaper.  
 - The wallpaper will be fetched using a native function.  
 
-### **index.html**  
+**index.html**  
 ```html
 <h1>time</h1>
 <h6>date</h6>
 ```  
 
-### **index.js**  
+**index.js**  
 ```javascript
 const [setWall, onChange] = SharedState("wall");
 
@@ -160,17 +160,12 @@ setWall((wall) => {
 });
 onChange(applyBackground);
 
-// Select elements for displaying time and date
-const h1Element = document.querySelector("h1");
-const h6Element = document.querySelector("h6");
-
 function updateDateTime() {
   const now = new Date();
-  const timeString = now.toLocaleTimeString("en-GB", { hour12: false });
-  const dateString = now.toISOString().split("T")[0];
-
-  h1Element.innerText = timeString;
-  h6Element.innerText = dateString;
+  document.querySelector("h1").innerText = now.toLocaleTimeString("en-GB", {
+    hour12: false,
+  });
+  document.querySelector("h6").innerText = now.toISOString().split("T")[0];
 }
 
 // Initial update and set interval for real-time updates
@@ -178,16 +173,21 @@ updateDateTime();
 setInterval(updateDateTime, 1000);
 ```  
 
-### **index.css**  
+**index.css**  
 ```css
 body {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
   margin: 0;
-  font-size: 2rem;
+  font-size: 4rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 * {
@@ -196,27 +196,59 @@ body {
 }
 ```  
 
-### **background.js**  
+**background.js**  
 ```javascript
-const [watchWallpaperForChange] = new NativeFunctions("watchWallpaperForChange");
 const [getWallpaper] = NativeFunctions("getWallpaper");
-const [setWall] = SharedState("wall");
-
+let lastWallpaperMTime;
 const setWallpaper = () =>
-  watchWallpaperForChange().then(() =>
-    getWallpaper().then(newWallpaper => {
-      setWall(newWallpaper);
-    })
-  );
+  getWallpaper(lastWallpaperMTime).then((wallpaper) => {
+    lastWallpaperMTime = wallpaper.mTime;
+    const [setWallpaperState] = SharedState("wall");
+    setWallpaperState(wallpaper);
+  }).then(setWallpaper);
 
-// Initialize wallpaper fetching and continuous updates
-setWallpaper().then(setWallpaper);
+setWallpaper();
 ```  
 
-### **~/.config/baremetal/main.js**  
+**~/.config/baremetal/main.js**  
 ```javascript
-// TODO: Implement functions to watch for wallpaper changes and send them as base64
+import * as os from "os";
+import * as std from "std";
+
+const cachePath = std.getenv("HOME") + "/.cache/baremetal/pathToWallpaper.txt";
+export async function getWallpaper(lastMTime) {
+  while (true) {
+    // Check file stats
+    const [fileStats, err] = os.stat(cachePath);
+    if (err !== 0) {
+      throw Error(`Failed to read ${cachePath} stats.\nError code: ${err}`);
+    }
+    // Skip if file hasn't changed
+    if (lastMTime && fileStats.mtime <= lastMTime) {
+      os.sleep(500);
+      continue;
+    }
+
+    // Load and validate target file path
+    const targetPath = std.loadFile(cachePath)?.trim();
+    if (!targetPath) {
+      throw Error(`Failed to read path from cache file: ${cachePath}`);
+    }
+
+    // Load and validate target file content
+    const content = await execAsync(["base64", "-w", 0, targetPath]);
+
+    return {
+      mTime: fileStats.mtime,
+      source: content,
+    };
+  }
+}
 ```  
+**Result**
+
+https://github.com/user-attachments/assets/020ca07b-a40f-4b1b-a2fb-38b3f46e26df
+
 
 
 
