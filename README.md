@@ -139,5 +139,92 @@ onChange(newState => {
   // Perform actions based on the new state value
 });
 ```
+---
+
+## Example / Guide  
+
+We are going to implement a simple new tab page extension with the following features:  
+- The new tab page will display a digital clock at the center of the page with a background wallpaper.  
+- The wallpaper will be fetched using a native function.  
+
+### **index.html**  
+```html
+<h1>time</h1>
+<h6>date</h6>
+```  
+
+### **index.js**  
+```javascript
+const [setWall, onChange] = SharedState("wall");
+
+const applyBackground = (newWall) => {
+  document.body.style.backgroundImage = `url(${newWall.source})`;
+};
+
+// Set initial wallpaper and update on change
+setWall((wall) => {
+  applyBackground(wall);
+  return wall;
+});
+onChange(applyBackground);
+
+// Select elements for displaying time and date
+const h1Element = document.querySelector("h1");
+const h6Element = document.querySelector("h6");
+
+function updateDateTime() {
+  const now = new Date();
+  const timeString = now.toLocaleTimeString("en-GB", { hour12: false });
+  const dateString = now.toISOString().split("T")[0];
+
+  h1Element.innerText = timeString;
+  h6Element.innerText = dateString;
+}
+
+// Initial update and set interval for real-time updates
+updateDateTime();
+setInterval(updateDateTime, 1000);
+```  
+
+### **index.css**  
+```css
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  font-size: 2rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+```  
+
+### **background.js**  
+```javascript
+const [watchWallpaperForChange] = new NativeFunctions("watchWallpaperForChange");
+const [getWallpaper] = NativeFunctions("getWallpaper");
+const [setWall] = SharedState("wall");
+
+const setWallpaper = () =>
+  watchWallpaperForChange().then(() =>
+    getWallpaper().then(newWallpaper => {
+      setWall(newWallpaper);
+    })
+  );
+
+// Initialize wallpaper fetching and continuous updates
+setWallpaper().then(setWallpaper);
+```  
+
+### **~/.config/baremetal/main.js**  
+```javascript
+// TODO: Implement functions to watch for wallpaper changes and send them as base64
+```  
+
 
 
