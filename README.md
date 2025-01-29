@@ -104,8 +104,6 @@ Baremetal allows you to directly interact with native JavaScript functions defin
    console.log(result); // result = "Hello from native function"
    ```
 
----
-
 ### **Important Considerations:**
 
 1. **Execution Context:**  
@@ -113,4 +111,33 @@ Baremetal allows you to directly interact with native JavaScript functions defin
 
 2. **Data Serialization:**  
    All arguments passed to native functions and any return values must be serializable in JSON format to ensure seamless data exchange.
+
+---
+
+## Shared State Between `background.js` and `index.js`
+
+Data (state) can be shared between the background script and content script using a built-in utility like this:
+
+```javascript
+// Can be called in background.js and index.js like this:
+const [setState, onChange] = SharedState("stateName");
+```
+
+- The `SharedState()` function takes a state name as an argument and returns two handler functions.  
+- These handler functions can be used to manage state changes and updates, as shown below:
+
+### **Set or Update State**
+```javascript
+setState("newValue");
+// or
+setState(oldValue => oldValue + 1);
+```
+
+### **Handle State Changes**
+```javascript
+onChange(newState => {
+  // Perform actions based on the new state value
+});
+```
+
 
