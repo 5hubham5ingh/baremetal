@@ -9,8 +9,6 @@ A browser extension that empowers users to create highly customized new tab page
 * **Enhanced Aesthetics (Firefox Only):** Personalize your browser’s visual appearance by setting custom themes.
 * **Native Functionality Integration (Optional):** Seamlessly interact with native JavaScript functions within your extension scripts, unlocking powerful system-level APIs.
 
----
-
 ## Setup
 
 ### **Installation:**
@@ -21,8 +19,6 @@ A browser extension that empowers users to create highly customized new tab page
 ### **Access and Explore:**
 
 - Open a new tab, where you'll find comprehensive documentation to guide you through the extension's usage and features.
-
----
 
 ## Creating a Custom New Tab Page
 
@@ -40,7 +36,7 @@ A browser extension that empowers users to create highly customized new tab page
    - The **index.html**, **index.css**, and **index.js** files will execute in the specified order to create your custom new tab page.
    - The **background.js** file will run as the extension's background script, so it should only include code designed for background tasks.
 
----
+--- 
 
 ## Native Function Integration
 
@@ -68,8 +64,6 @@ Baremetal allows you to directly interact with native JavaScript functions defin
    sudo mv baremetal /usr/bin
    ```
 
----
-
 ### **Define and Export Native Functions:**
 
 1. **Modify the Configuration File:**  
@@ -82,8 +76,6 @@ Baremetal allows you to directly interact with native JavaScript functions defin
      return "Hello from native function";
    }
    ```
-
----
 
 ### **Calling Native Functions in Browser Scripts:**
 
