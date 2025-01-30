@@ -27,10 +27,11 @@ try {
 
 /**************************** Helpers *****************************/
 
+let extension;
 async function handleMessage(message) {
   try {
-    let extension;
     try {
+    if(!extension)
       extension = await import(extensionPath);
     } catch {
       throw Error("Failed to import extension at " + extensionPath);
