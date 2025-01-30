@@ -6,7 +6,7 @@ import {
   open,
   out as stdout,
 } from "std";
-import { exec, isatty } from "os";
+import { exec, isatty, Worker } from "os";
 import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
 
 globalThis.execAsync = execAsync;
@@ -14,12 +14,15 @@ globalThis.execAsync = execAsync;
 let extensionPath;
 try {
   generateAppManifest();
+
+  const worker = new Worker("./handleMessageWorker.js");
   extensionPath = getenv("HOME").concat("/.config/baremetal/main.js");
 
   /* Main loop */
   while (true) {
     const message = getMessage();
-    await handleMessage(message);
+    // await handleMessage(message);
+    worker.postMessage(message)
   }
 } catch (error) {
   stderr.puts(`${error.constructor.name}: ${error.message}\n${error.stack}`);
