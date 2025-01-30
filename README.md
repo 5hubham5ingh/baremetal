@@ -183,27 +183,31 @@ body {
   height: 100vh;
   width: 100%;
   margin: 0;
-  font-size: 4rem;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   background-attachment: fixed;
-}
 
-* {
-  margin: 0;
-  padding: 0;
+  h1 {
+    font-size: 4rem;
+    margin: 0;
+  }
+
+  h6 {
+    font-size: 1rem;
+    margin: 0;
+  }
 }
 ```  
 
 **background.js**  
 ```javascript
 const [getWallpaper] = NativeFunctions("getWallpaper");
+const [setWallpaperState] = SharedState("wall");
 let lastWallpaperMTime;
 const setWallpaper = () =>
   getWallpaper(lastWallpaperMTime).then((wallpaper) => {
     lastWallpaperMTime = wallpaper.mTime;
-    const [setWallpaperState] = SharedState("wall");
     setWallpaperState(wallpaper);
   }).then(setWallpaper);
 
@@ -215,13 +219,13 @@ setWallpaper();
 import * as os from "os";
 import * as std from "std";
 
-const cachePath = std.getenv("HOME") + "/.cache/baremetal/pathToWallpaper.txt";
+const wallpaperPathCache = std.getenv("HOME") + "/.cache/baremetal/pathToWallpaper.txt";
 export async function getWallpaper(lastMTime) {
   while (true) {
     // Check file stats
-    const [fileStats, err] = os.stat(cachePath);
+    const [fileStats, err] = os.stat(wallpaperPathCache);
     if (err !== 0) {
-      throw Error(`Failed to read ${cachePath} stats.\nError code: ${err}`);
+      throw Error(`Failed to read ${wallpaperPathCache} stats.\nError code: ${err}`);
     }
     // Skip if file hasn't changed
     if (lastMTime && fileStats.mtime <= lastMTime) {
@@ -230,17 +234,17 @@ export async function getWallpaper(lastMTime) {
     }
 
     // Load and validate target file path
-    const targetPath = std.loadFile(cachePath)?.trim();
-    if (!targetPath) {
-      throw Error(`Failed to read path from cache file: ${cachePath}`);
+    const wallpaperPath = std.loadFile(wallpaperPathCache)?.trim();
+    if (!wallpaperPath) {
+      throw Error(`Failed to read path from cache file: ${wallpaperPathCache}`);
     }
 
-    // Load and validate target file content
-    const content = await execAsync(["base64", "-w", 0, targetPath]);
+    // Convert image to base64 string using base64 GNU core util
+    const base64Wallpaper = await execAsync(["base64", "-w", 0, wallpaperPath]);
 
     return {
       mTime: fileStats.mtime,
-      source: content,
+      source: base64Wallpaper,
     };
   }
 }
@@ -249,6 +253,9 @@ export async function getWallpaper(lastMTime) {
 
 https://github.com/user-attachments/assets/020ca07b-a40f-4b1b-a2fb-38b3f46e26df
 
+# TODOs:
 
+1. Port runtime APIs in the [native app](https://github.com/5hubham5ingh/baremetal/blob/main/app/baremetal.js) to Deno for compiling it for Windows and macOS.
+2. Create a Chrome extension version.
 
 
