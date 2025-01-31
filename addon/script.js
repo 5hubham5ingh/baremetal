@@ -1,19 +1,27 @@
-document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
-    const files = await retrieveDataFromIndexedDB("files");
-    if (files) {
-      processFiles(files);
-    } else { // load docs
-      const iframe = document.createElement("iframe");
-      iframe.src = "https://5hubham5ingh.github.io/baremetal";
-      iframe.frameBorder = "0";
-      iframe.style.height = "100vh";
-      iframe.style.width = "100%";
-      document.body.appendChild(iframe);
-    }
-  },
-);
+document.addEventListener("DOMContentLoaded", async () => {
+  const files = await retrieveDataFromIndexedDB("files");
+  if (files) {
+    processFiles(files);
+  } else {
+    // load docs
+    const heading = document.createElement("h1");
+    heading.textContent = "Welcome to baremetal browser extension.!";
+    const text = document.createElement("p");
+    text.textContent = "Press Ctrl+Enter to upload custom html, css, and js.";
+    const text2 = document.createElement("p");
+    text2.textContent = "Or see the documentation to get started.";
+    const docLink = document.createElement("a");
+    docLink.href =
+      "https://github.com/5hubham5ingh/baremetal/blob/main/README.md#baremetal";
+    docLink.textContent = "Documentation";
+
+    document.body.appendChild(heading);
+    document.body.appendChild(text);
+    document.body.appendChild(text2);
+    document.body.appendChild(docLink);
+    document.body.style.textAlign = "center";
+  }
+});
 
 // Listen for Ctrl+Enter to upload custom html, css, and js.
 document.addEventListener("keydown", function (event) {
@@ -23,10 +31,9 @@ document.addEventListener("keydown", function (event) {
 });
 
 // Listen for custom html, css and js upload
-document.getElementById("fileUpload").addEventListener(
-  "change",
-  handleFileUpload,
-);
+document
+  .getElementById("fileUpload")
+  .addEventListener("change", handleFileUpload);
 
 /*----------------- NativeFunctions helpers --------------------*/
 let backgroundScriptPort;
