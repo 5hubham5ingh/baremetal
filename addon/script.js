@@ -4,22 +4,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     processFiles(files);
   } else {
     // load docs
-    const heading = document.createElement("h1");
-    heading.textContent = "Welcome to baremetal browser extension.!";
-    const text = document.createElement("p");
-    text.textContent = "Press Ctrl+Enter to upload custom html, css, and js.";
-    const text2 = document.createElement("p");
-    text2.textContent = "Or see the documentation to get started.";
-    const docLink = document.createElement("a");
-    docLink.href =
-      "https://github.com/5hubham5ingh/baremetal/blob/main/README.md#baremetal";
-    docLink.textContent = "Documentation";
+    const createElement = (tag, text, style, props = {}) => {
+      const el = Object.assign(document.createElement(tag), props);
+      if (text) el.textContent = text;
+      el.style.cssText = style;
+      return el;
+    };
 
-    document.body.appendChild(heading);
-    document.body.appendChild(text);
-    document.body.appendChild(text2);
-    document.body.appendChild(docLink);
-    document.body.style.textAlign = "center";
+    document.body.style.cssText =
+      "display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;background:#282c34;color:#e0e0e0;font-family:sans-serif;margin:0";
+
+    document.body.append(
+      createElement(
+        "h1",
+        "Welcome to Baremetal Extension!",
+        "font-size:2.2em;margin-bottom:8px;color:#61dafb;text-align:center"
+      ),
+      createElement(
+        "p",
+        "Press Ctrl+Enter to upload custom HTML, CSS, and JS.",
+        "font-size:1.1em;max-width:600px;margin:8px 0;text-align:center"
+      ),
+      createElement(
+        "p",
+        "Or see the documentation to get started.",
+        "font-size:1.1em;max-width:600px;margin:8px 0;text-align:center"
+      ),
+      createElement(
+        "a",
+        "Documentation",
+        "color:#61dafb;text-decoration:none;padding:4px 8px;border-radius:4px;border:1px solid #61dafb;margin-top:8px;text-align:center",
+        {
+          href: "https://github.com/5hubham5ingh/baremetal/blob/main/README.md#baremetal",
+        }
+      )
+    );
   }
 });
 
