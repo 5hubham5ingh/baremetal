@@ -1,21 +1,22 @@
-import {getenv, out as stdout } from "std";
+import { getenv, out as stdout } from "std";
 import { Worker } from "os";
 
 import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
 
 globalThis.execAsync = execAsync;
 
-Worker.parent.onmessage = (e) => handleMessage(e.data);
+const parent = Worker.parent;
 
 const extensionPath = getenv("HOME").concat("/.config/baremetal/main.js");
 let extension;
 async function handleMessage(message) {
   try {
-    try {
-    if(!extension)
-      extension = await import(extensionPath);
-    } catch {
-      throw Error("Failed to import extension at " + extensionPath);
+    if (!extension) {
+      try {
+        extension = await import(extensionPath);
+      } catch {
+        throw Error("Failed to import extension at " + extensionPath);
+      }
     }
     const result = await extension[message.functionName](...message.arguments);
     sendMessage(result, message.id);
@@ -23,8 +24,6 @@ async function handleMessage(message) {
     sendError(error, message.id);
   }
 }
-
-
 
 // Send an encoded message to stdout
 function sendMessageChunk(messageString) {
@@ -67,4 +66,4 @@ function sendError(error, id) {
   });
 }
 
-
+parent.onmessage = async (e) => await handleMessage(e.data);

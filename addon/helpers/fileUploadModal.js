@@ -66,6 +66,7 @@ function processFiles(filesArray) {
         await injectUserContent(
           content,
           file.name,
+          file.lastModified,
         );
       };
       reader.onerror = function (error) {
@@ -77,7 +78,7 @@ function processFiles(filesArray) {
   }
 }
 
-async function injectUserContent(content, type) {
+async function injectUserContent(content, type, lastModified) {
   try {
     switch (type) {
       case "index.js": {
@@ -105,8 +106,11 @@ async function injectUserContent(content, type) {
       }
 
       case "background.js": {
-        const [setBgScript] = SharedState("bgScript");
-        setBgScript(content);
+        const [getScript, setBgScript] = SharedState("bgScript");
+        const lastScript = await getScript() ?? { lastModified: 0 };
+        if (lastScript.lastModified < lastModified) {
+          setBgScript({ lastModified, script: content });
+        }
         break;
       }
 

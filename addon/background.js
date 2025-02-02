@@ -123,7 +123,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
   });
 });
 
-/*------------------ NativeFunctions helpers ------------------*/
+/*------------------ Native Functions API helpers ------------------*/
 
 function handleMessage(message, resolve, reject) {
   const { status, data } = message;
@@ -155,12 +155,10 @@ function createFunctionWrapper(functionName, id, usePort = true) {
 }
 
 /*------------------ Load user background.js ------------------*/
-const [setBgScript, onChange] = SharedState("bgScript");
+const [getBgScript, _, onChange] = SharedState("bgScript");
 
-setBgScript(async (bgScript) => {
-  if (!bgScript) return;
-  const userScript = new Function(bgScript);
-  await userScript();
-  return bgScript;
+const injectBgScript = async ({ script }) => await (new Function(script))();
+getBgScript().then(async (script) => {
+  if (script) await injectBgScript(script);
+  onChange(injectBgScript);
 });
-onChange(async (bgScript) => await (new Function(bgScript))());

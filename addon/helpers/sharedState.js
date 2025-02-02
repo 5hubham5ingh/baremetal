@@ -71,5 +71,5 @@ const SharedState = (stateName) => {
     };
   };
 
-  return [setState, onChange];
+  return [() => retrieveDataFromIndexedDB(stateName), setState, onChange];
 };
