@@ -112,20 +112,25 @@ Data (state) can be shared between the background script and content script usin
 
 ```javascript
 // Can be called in background.js and index.js like this:
-const [setState, onChange] = SharedState("stateName");
+const [getState, setState, onChange] = SharedState("stateName");
 ```
 
 - The `SharedState()` function takes a state name as an argument and returns two handler functions.  
 - These handler functions can be used to manage state changes and updates, as shown below:
 
-### **Set or Update State**
+### Get state
+```javascript
+const state = await getState(); // returns state or null
+```
+
+### Set or Update State
 ```javascript
 setState("newValue");
 // or
 setState(oldValue => oldValue + 1);
 ```
 
-### **Handle State Changes**
+### Handle State Changes
 ```javascript
 onChange(newState => {
   // Perform actions based on the new state value
@@ -147,17 +152,14 @@ We are going to implement a simple new tab page extension with the following fea
 
 **index.js**  
 ```javascript
-const [setWall, onChange] = SharedState("wall");
+const [getWall, _, onChange] = SharedState("wall");
 
-const applyBackground = (newWall) => {
-  document.body.style.backgroundImage = `url(${newWall.source})`;
-};
+function applyBackground(newWall) {
+  if (newWall) document.body.style.backgroundImage = `url(${newWall.source})`;
+}
 
-// Set initial wallpaper and update on change
-setWall((wall) => {
-  applyBackground(wall);
-  return wall;
-});
+getWall().then(applyBackground);
+
 onChange(applyBackground);
 
 function updateDateTime() {
@@ -203,11 +205,11 @@ body {
 **background.js**  
 ```javascript
 const [getWallpaper] = NativeFunctions("getWallpaper");
-const [setWallpaperState] = SharedState("wall");
 let lastWallpaperMTime;
 const setWallpaper = () =>
   getWallpaper(lastWallpaperMTime).then((wallpaper) => {
     lastWallpaperMTime = wallpaper.mTime;
+    const [_, setWallpaperState] = SharedState("wall");
     setWallpaperState(wallpaper);
   }).then(setWallpaper);
 
@@ -229,7 +231,7 @@ export async function getWallpaper(lastMTime) {
     }
     // Skip if file hasn't changed
     if (lastMTime && fileStats.mtime <= lastMTime) {
-      os.sleep(500);
+      await os.sleepAsync(500);
       continue;
     }
 
