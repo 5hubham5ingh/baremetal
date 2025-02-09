@@ -1,7 +1,12 @@
-# Baremetal
+<h1 align="center" - click me!>
 
-A browser extension that empowers users to create highly customized new tab
-pages and browser themes.
+<img src="https://github.com/user-attachments/assets/4b554769-fe7c-4cfd-8834-6f3269938303" alt="Baremetal" style="width: 30%">
+
+  Baremetal 
+  
+  <h4 align="center"> A browser extension that empowers users to create highly customized new tab pages and browser themes. </h4>
+
+</h1>
 
 ## Features:
 
