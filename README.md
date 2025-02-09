@@ -57,10 +57,10 @@ defined in your system, providing access to advanced system-level APIs.
 ### **Installation and Configuration:**
 
 1. **Download the Native App:**\
-   Get the native app from the official GitHub releases page.
+   [Download](https://raw.githubusercontent.com/5hubham5ingh/baremetal/refs/heads/main/dist/baremetal-linux-86_64.tar.gz) and extract the native app binary.
 
 2. **Generate the Manifest:**\
-   Run the following command in your terminal to generate the app's
+   Run the app in your terminal to generate the app's
    `manifest.json` file:
    ```bash
    sudo baremetal /path/to/binary
