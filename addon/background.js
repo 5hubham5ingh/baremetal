@@ -1,3 +1,11 @@
+browser.browserAction.onClicked.addListener(function (tab) {
+  browser.tabs.create({
+    url:
+      "https://github.com/5hubham5ingh/baremetal/blob/main/README.md#baremetal",
+    active: true,
+  });
+});
+
 /*
  background script acts as a bridge between content script and native application
 */
