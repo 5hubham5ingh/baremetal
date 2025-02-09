@@ -296,6 +296,8 @@ export async function getWallpaper(lastMTime) {
 
 https://github.com/user-attachments/assets/020ca07b-a40f-4b1b-a2fb-38b3f46e26df
 
+See [Foxpanel](https://github.com/5hubham5ingh/foxpanel?tab=readme-ov-file#foxpanel--) for more advance use case.
+
 # TODOs:
 
 1. Port runtime APIs in the
