@@ -49,13 +49,13 @@ modal.onclick = (e) => {
 // ensures file type checking and loading order
 const fileNames = ["background.js", "index.css", "index.html", "index.js"];
 
-function handleFileUpload(e) {
+async function handleFileUpload(e) {
   const filesArray = Array.from(e.target.files);
-  storeDataInIndexedDB("files", filesArray);
-  window.location.reload();
+  await storeDataInIndexedDB("files", filesArray);
+  processFiles(filesArray);
 }
 
-function processFiles(filesArray) {
+function processFiles(filesArray, updateBackgroundScript) {
   for (const fileName of fileNames) {
     const files = filesArray.filter((file) => file.name === fileName);
 
@@ -66,7 +66,7 @@ function processFiles(filesArray) {
         await injectUserContent(
           content,
           file.name,
-          file.lastModified,
+          updateBackgroundScript,
         );
       };
       reader.onerror = function (error) {
@@ -78,39 +78,51 @@ function processFiles(filesArray) {
   }
 }
 
-async function injectUserContent(content, type, lastModified) {
+async function injectUserContent(content, type, updateBackgroundScript = true) {
   try {
     switch (type) {
       case "index.js": {
-        const userScript = new Function(content);
-        await userScript();
+        try {
+          const userScript = new Function(content);
+          await userScript();
+        } catch (error) {
+          console.error("Failed to inject index.js");
+          throw error;
+        }
         break;
       }
 
       case "index.html": {
-        const tempElement = document.createElement("div");
-        tempElement.innerHTML = content;
-        const elementsToInject = Array.from(tempElement.childNodes); // Convert to array for safe iteration
-        const body = document.body;
-        elementsToInject.forEach((element) => {
-          body.appendChild(element);
-        });
+        try {
+          const tempElement = document.createElement("div");
+          tempElement.innerHTML = content;
+          const elementsToInject = Array.from(tempElement.childNodes); // Convert to array for safe iteration
+          const body = document.body;
+          elementsToInject.forEach((element) => {
+            body.appendChild(element);
+          });
+        } catch (error) {
+          console.error("Failed to inject html.");
+          throw error;
+        }
         break;
       }
 
       case "index.css": {
-        const styleElement = document.createElement("style");
-        styleElement.textContent = content;
-        document.head.appendChild(styleElement);
+        try {
+          const styleElement = document.createElement("style");
+          styleElement.textContent = content;
+          document.head.appendChild(styleElement);
+        } catch (error) {
+          console.error("Failed to inject css.");
+          throw error;
+        }
         break;
       }
 
       case "background.js": {
-        const [getScript, setBgScript] = SharedState("bgScript");
-        const lastScript = await getScript() ?? { lastModified: 0 };
-        if (lastScript.lastModified < lastModified) {
-          setBgScript({ lastModified, script: content });
-        }
+        const [_, setBgScript] = SharedState("bgScript");
+        if (updateBackgroundScript) setBgScript(content);
         break;
       }
 

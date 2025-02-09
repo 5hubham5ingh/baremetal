@@ -1,4 +1,3 @@
-console.log("background2.js");
 /*
  background script acts as a bridge between content script and native application
 */
@@ -9,13 +8,6 @@ const nativeAppMessageHandlers = new Map();
 
 let contentScriptPort;
 const nativeAppMessageHandler = (message) => {
-  console.log(
-    "Message from native app:",
-    message,
-    "message handler map: ",
-    nativeAppMessageHandlers,
-  );
-
   const messageHandler = (message) => {
     const nativeAppMessageHandler = nativeAppMessageHandlers
       .get(message.id);
@@ -39,14 +31,12 @@ const nativeAppMessageHandler = (message) => {
         ...message,
         data: dataChunks.join(""),
       };
-      console.log("Sending message to script.sj: ", completeMessage);
       messageHandler(completeMessage);
       dataChunks.length = 0;
       break;
     }
     case 1: {
       // message.data is an error
-      console.log("Sending message to script.sj: ", message);
       messageHandler(message);
     }
   }
@@ -72,11 +62,6 @@ const contentScriptMessageHandler = (messageFromContentScript) => {
   // pass the message to native application
   connectNativeApp();
 
-  console.log(
-    "Message from content script:",
-    messageFromContentScript,
-    "\nSending to native app",
-  );
   nativeAppPort.postMessage(messageFromContentScript);
 };
 
@@ -123,13 +108,13 @@ browser.runtime.onMessage.addListener((message, sender) => {
   });
 });
 
-/*------------------ Native Functions API helpers ------------------*/
+/*------------------ Native Functions API helpers implimentation for background script ------------------*/
 
 function handleMessage(message, resolve, reject) {
   const { status, data } = message;
   status === 0 ? resolve(JSON.parse(data)) : reject(data);
 }
-
+// impliment createFunctionWrapper function for Native function API
 function createFunctionWrapper(functionName, id, usePort = true) {
   return function () {
     return new Promise((resolve, reject) => {
@@ -157,7 +142,15 @@ function createFunctionWrapper(functionName, id, usePort = true) {
 /*------------------ Load user background.js ------------------*/
 const [getBgScript, _, onChange] = SharedState("bgScript");
 
-const injectBgScript = async ({ script }) => await (new Function(script))();
+const injectBgScript = async (script) => {
+  try {
+    nativeAppMessageHandlers.clear(); // remove old handlers
+    await (new Function(script))();
+  } catch (error) {
+    console.error("Failed to inject background.js.");
+    throw error;
+  }
+};
 getBgScript().then(async (script) => {
   if (script) await injectBgScript(script);
   onChange(injectBgScript);

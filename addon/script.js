@@ -1,9 +1,12 @@
+const backgroundMessageHandlers = new Map();
+
 document.addEventListener("DOMContentLoaded", async () => {
   const files = await retrieveDataFromIndexedDB("files");
   if (files) {
-    processFiles(files);
+    backgroundMessageHandlers.clear(); // remove message handlers
+    processFiles(files, false);
   } else {
-    // load docs
+    // load welcome page
     const createElement = (tag, text, style, props = {}) => {
       const el = Object.assign(document.createElement(tag), props);
       el.innerHTML = text;
@@ -50,9 +53,8 @@ document
   .getElementById("fileUpload")
   .addEventListener("change", handleFileUpload);
 
-/*----------------- NativeFunctions helpers --------------------*/
+/*----------------- Native Functions API helpers implimentation for content script --------------------*/
 let backgroundScriptPort;
-const backgroundMessageHandlers = new Map();
 
 function handleMessage(message, resolve, reject) {
   const { status, data } = message;
@@ -61,8 +63,11 @@ function handleMessage(message, resolve, reject) {
 
 function messageHandler(message) {
   const handler = backgroundMessageHandlers.get(message.id);
-  if (!handler) console.error("No handler for: ", message.id);
-  else handler(message);
+  if (!handler) {
+    console.error(
+      "No handler found. discarding message from background script.",
+    );
+  } else handler(message);
 }
 
 function setupConnection() {
@@ -72,6 +77,7 @@ function setupConnection() {
   }
 }
 
+// impliment createFunctionWrapper function for Native function API
 function createFunctionWrapper(functionName, id, usePort = true) {
   return function () {
     return new Promise((resolve, reject) => {
@@ -96,4 +102,3 @@ function createFunctionWrapper(functionName, id, usePort = true) {
     });
   };
 }
-/*---------------------------------------------------------------*/

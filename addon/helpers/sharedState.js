@@ -1,7 +1,5 @@
 /**
  * Creates a shared state mechanism between background and content scripts
- * @param {string} stateName - Unique identifier for the shared state
- * @returns {[Function, Function]} - Returns [setState, onChange] functions
  */
 const SharedState = (stateName) => {
   // Helper to toggle storage signal value
@@ -13,11 +11,6 @@ const SharedState = (stateName) => {
     });
   };
 
-  /**
-   * Updates the shared state value
-   * @param {Object|Function} valueOrUpdater - New value or updater function
-   * @returns {Promise<void>}
-   */
   const setState = async (valueOrUpdater) => {
     try {
       let newValue;
@@ -50,11 +43,6 @@ const SharedState = (stateName) => {
     }
   };
 
-  /**
-   * Subscribes to state changes
-   * @param {Function} callback - Function to call when state changes
-   * @returns {Function} - Cleanup function to remove the listener
-   */
   const onChange = async (callback) => {
     const handleStorageChange = async (changes, areaName) => {
       if (areaName === "local" && changes[stateName]) {
@@ -71,5 +59,7 @@ const SharedState = (stateName) => {
     };
   };
 
-  return [() => retrieveDataFromIndexedDB(stateName), setState, onChange];
+  const getState = () => retrieveDataFromIndexedDB(stateName);
+
+  return [getState, setState, onChange];
 };
