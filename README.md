@@ -58,15 +58,16 @@ defined in your system, providing access to advanced system-level APIs.
 
 1. **Download the Native App:**\
    [Download](https://raw.githubusercontent.com/5hubham5ingh/baremetal/refs/heads/main/dist/baremetal-linux-86_64.tar.gz) and extract the native app binary.
+  `tar -xzf baremetal-linux-86_64.tar.gz`
 
-2. **Generate the Manifest:**\
+3. **Generate the Manifest:**\
    Run the app in your terminal to generate the app's
    `manifest.json` file:
    ```bash
    sudo baremetal /path/to/binary
    ```
 
-3. **Install Globally:**\
+4. **Install Globally:**\
    Move the native app binary to your system’s global binary directory:
    ```bash
    sudo mv baremetal /path/to/binary
