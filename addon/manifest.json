@@ -28,7 +28,7 @@
   },
 
   "browser_action": {
-    "default_icon": "icons/logo.webp",
+    "default_icon": "icons/icon128.png",
     "default_title": "See documentation."
   },
 

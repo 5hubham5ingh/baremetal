@@ -19,7 +19,7 @@ async function handleMessage(message) {
       }
     }
     const result = await extension[message.functionName](...message.arguments);
-    sendMessage(result, message.id);
+    sendMessage(result ?? null, message.id);
   } catch (error) {
     sendError(error, message.id);
   }
