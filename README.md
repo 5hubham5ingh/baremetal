@@ -303,6 +303,10 @@ https://github.com/user-attachments/assets/020ca07b-a40f-4b1b-a2fb-38b3f46e26df
 
 See [Foxpanel](https://github.com/5hubham5ingh/foxpanel?tab=readme-ov-file#foxpanel--) for more advance use case.
 
+
+https://github.com/user-attachments/assets/a376026c-1877-427d-817b-851ea4777aa9
+
+
 # TODOs:
 
 1. Port runtime APIs in the
