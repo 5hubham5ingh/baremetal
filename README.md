@@ -21,17 +21,9 @@
 
 ## Setup
 
-### **Installation:**
-
-1. Download the Baremetal browser extension/add-on from your browser’s official
+1. Download and install the Baremetal browser extension/add-on from your browser’s official
    extension marketplace.
-2. Install the extension to integrate it seamlessly into your browsing
-   experience.
-
-### **Access and Explore:**
-
-- Open a new tab, where you'll find comprehensive documentation to guide you
-  through the extension's usage and features.
+2 Open a new tab, where you'll find the welcome page with link to this documentation.
 
 ## Creating a Custom New Tab Page
 
