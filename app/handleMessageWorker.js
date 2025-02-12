@@ -26,13 +26,13 @@ async function handleMessage(message) {
 }
 
 // Send an encoded message to stdout
-function sendMessageChunk(messageString) {
-  const message = JSON.stringify(messageString);
+function sendMessageChunk(message) {
+  const messageString = JSON.stringify(message);
   const encodedLength = new Uint8Array(4);
-  new DataView(encodedLength.buffer).setUint32(0, message.length, true);
+  new DataView(encodedLength.buffer).setUint32(0, messageString.length, true);
   stdout.write(encodedLength.buffer, 0, 4); // Write the 4-byte length header
-  stdout.puts(message);
-  stdout.flush();
+  stdout.puts(messageString);
+  if (message.status !== 0.5) stdout.flush();
 }
 
 function sendMessage(result, id) {
