@@ -1,7 +1,7 @@
 import { getenv, out as stdout } from "std";
 import { Worker } from "os";
 
-import { exec as execAsync } from "../../qjs-ext-lib/src/process.js";
+import { exec as execAsync } from "../qjs-ext-lib/src/process.js";
 
 globalThis.execAsync = execAsync;
 
