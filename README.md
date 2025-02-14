@@ -23,7 +23,8 @@
 
 1. Download and install the Baremetal browser extension/add-on from your browser’s official
    extension marketplace.
-2 Open a new tab, where you'll find the welcome page with link to this documentation.
+   
+3. Open a new tab, where you'll find the welcome page with link to this documentation.
 
 ## Creating a Custom New Tab Page
 
@@ -101,9 +102,7 @@ defined in your system, providing access to advanced system-level APIs.
    ```
 
    - **Note:** Using `new NativeFunctions("fun1", "fun2")` creates a new
-     instance of the native app, ideal for parallel execution. Without the `new`
-     keyword, all function executions are queued sequentially, which may
-     introduce delays for long-running operations.
+     instance of the native app, ideal for parallel execution. Without the `new` keyword, all function executions are queued sequentially, making it unsuitable for long-running synchronous operations.
 
 2. **Calling Functions:**\
    All native functions return a promise that resolves with the function’s
