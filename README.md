@@ -279,10 +279,11 @@ export async function getWallpaper(lastMTime) {
 
     // Convert image to base64 string using base64 GNU core util
     const base64Wallpaper = await execAsync(["base64", "-w", 0, wallpaperPath]);
+    const extension = wallpaperPath.slice(wallpaperPath.lastIndexOf(".") + 1);
 
     return {
       mTime: fileStats.mtime,
-      source: base64Wallpaper,
+      source: `data:image/${extension};base64,${base64Wallpaper}`,
     };
   }
 }
