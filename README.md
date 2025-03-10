@@ -301,7 +301,5 @@ https://github.com/user-attachments/assets/a376026c-1877-427d-817b-851ea4777aa9
 
 # TODOs:
 
-1. Port runtime APIs in the
-   [native app](https://github.com/5hubham5ingh/baremetal/blob/main/app/baremetal.js)
-   to Deno for compiling it for Windows and macOS.
-2. Create a Chrome extension version.
+1. Sync the files with firefox account for reproducibility.
+2. Download the already saved files.
